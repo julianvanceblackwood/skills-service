@@ -1014,7 +1014,7 @@ class SkillExpirationEmailIT extends InviteOnlyBaseSpec {
         emails[0].html.contains(skills[0].name)
     }
 
-    def "do not send skill expired emails for invite only project after user access is revoked"() {
+    def "do not send skill expired emails for invite only project after user access is revoked even when user has access to another project"() {
         def proj = SkillsFactory.createProject()
         def subj = SkillsFactory.createSubject()
         def skills = SkillsFactory.createSkills(3, 1, 1, 100)
@@ -1058,6 +1058,13 @@ class SkillExpirationEmailIT extends InviteOnlyBaseSpec {
 
         String revokedUserId = userIds.removeAt(1)
         skillsService.revokeInviteOnlyProjectAccess(proj.projectId, revokedUserId)
+
+        // An unrelated project-scoped role must not restore access to the invite-only project above
+        def unrelatedProj = SkillsFactory.createProject(2)
+        skillsService.createProject(unrelatedProj)
+        skillsService.addProjectAdmin(unrelatedProj.projectId, revokedUserId)
+        assert WaitFor.wait { greenMail.getReceivedMessages().size() == 1 }
+        greenMail.reset()
 
         when:
         expireUserAchievementsTaskExecutor.removeExpiredUserAchievements()

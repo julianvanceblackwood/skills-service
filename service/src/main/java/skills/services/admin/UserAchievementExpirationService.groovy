@@ -253,7 +253,7 @@ class UserAchievementExpirationService {
         Boolean isInviteOnly = inviteOnlyProjectService.isInviteOnlyProject(projectId)
         if (isInviteOnly) {
             List<UserRole> userRoles = userRoleRepo.findAllByUserId(userId?.toLowerCase())
-            Boolean isAuthorized = userRoles.find { it.roleName == RoleName.ROLE_SUPER_DUPER_USER || (it.projectId  && projectId.equalsIgnoreCase(projectId) && it.roleName in [RoleName.ROLE_PRIVATE_PROJECT_USER, RoleName.ROLE_PROJECT_ADMIN, RoleName.ROLE_PROJECT_APPROVER])}
+            Boolean isAuthorized = userRoles.find { it.roleName == RoleName.ROLE_SUPER_DUPER_USER || (it.projectId  && projectId.equalsIgnoreCase(it.projectId) && it.roleName in [RoleName.ROLE_PRIVATE_PROJECT_USER, RoleName.ROLE_PROJECT_ADMIN, RoleName.ROLE_PROJECT_APPROVER])}
             if (!isAuthorized) {
                 log.warn("User [${userId}] is not authorized to access private project [${projectId}]")
                 return false
